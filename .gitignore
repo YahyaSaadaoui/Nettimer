@@ -1,0 +1,26 @@
+# Secrets
+.env
+
+# Python virtual environment
+.venv/
+
+# Runtime / local scripts
+run_nettime.sh
+
+# Logs
+nettime.log
+*.log
+
+# Python cache
+__pycache__/
+*.py[cod]
+
+# Playwright artifacts
+.playwright/
+playwright-report/
+
+# Editors / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
