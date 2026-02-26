@@ -123,6 +123,95 @@ python main.py
 
 If everything is configured correctly, a Telegram notification will be sent.
 
+The run also writes widget data into:
+
+```text
+output/nettime_widget.json
+```
+
+### Work mode (normal / ramadan)
+
+The project supports two persistent work modes:
+
+* `normal` = target `8:30`
+* `ramadan` = target `7:00`
+
+Switch mode (and persist choice):
+
+```bash
+python main.py --mode ramadan
+python main.py --mode normal
+```
+
+Check current mode without scraping:
+
+```bash
+python main.py --status
+```
+
+Set mode without scraping:
+
+```bash
+python main.py --mode ramadan --status
+python main.py --mode normal --status
+```
+
+Once `ramadan` is activated, it stays active for next runs until you cancel it with `--mode normal`.
+
+---
+
+## Windows desktop widget (Rainmeter)
+
+You can pin NetTime values on your Windows desktop with Rainmeter.
+
+### 1. Install Rainmeter (Windows)
+
+Download and install Rainmeter from:
+
+```text
+https://www.rainmeter.net/
+```
+
+### 2. Copy the skin files
+
+From this repository, copy:
+
+```text
+windows_widget/rainmeter/NetTime
+```
+
+to:
+
+```text
+%USERPROFILE%\Documents\Rainmeter\Skins\NetTime
+```
+
+Or run the installer script from Windows PowerShell:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File "\\wsl.localhost\Ubuntu-24.04\home\username\nettimer\windows_widget\install_rainmeter_skin.ps1"
+```
+
+### 3. Check the data path
+
+Open `NetTime.ini` and verify this variable:
+
+```ini
+DataPath=\\wsl.localhost\Ubuntu-24.04\home\username\nettimer\output\nettime_widget.json
+```
+
+If your Linux username, distro name, or project path differs, update it.
+
+### 4. Load the widget
+
+In Rainmeter:
+
+1. Open **Manage**.
+2. Select `NetTime`.
+3. Load `NetTime.ini`.
+4. Right-click the widget and enable **Draggable** to place it.
+5. Disable **Draggable** and enable **Click through** if you want it to stay fixed.
+
 ---
 
 ## Background execution (Linux)
