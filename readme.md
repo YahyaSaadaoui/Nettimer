@@ -226,6 +226,22 @@ Example (Monday–Friday at 11:00, 15:00, 17:00):
 
 An example launcher script (`run_nettime_exemple.sh`) is provided.
 
+### Fetch every 5 minutes
+
+Install a 5-minute cron job with:
+
+```bash
+./setup_cron_5min.sh
+```
+
+Remove it with:
+
+```bash
+./remove_cron_5min.sh
+```
+
+The Rainmeter widget is configured to re-read JSON data every 30 seconds, so updates appear quickly after each fetch.
+
 ---
 
 ## Security & Scope
