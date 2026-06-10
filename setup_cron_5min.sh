@@ -3,7 +3,14 @@ set -euo pipefail
 
 REPO_DIR="$(cd "$(dirname "$0")" && pwd)"
 MARKER="# NETTIMER_EVERY_5_MIN"
-JOB="*/5 * * * * /bin/bash -lc 'cd \"$REPO_DIR\" && ./run_nettime.sh' $MARKER"
+
+if [ -f "$REPO_DIR/run_nettime.sh" ]; then
+  RUNNER="$REPO_DIR/run_nettime.sh"
+else
+  RUNNER="$REPO_DIR/run_nettime_example.sh"
+fi
+
+JOB="*/5 * * * * /bin/bash \"$RUNNER\" $MARKER"
 
 TMP_CRON="$(mktemp)"
 trap 'rm -f "$TMP_CRON"' EXIT

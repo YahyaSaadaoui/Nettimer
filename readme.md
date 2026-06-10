@@ -1,281 +1,160 @@
-# NetTime Scraper & Telegram Notifier (Personal Project)
+# Nettimer
 
-## Overview
+Nettimer is a personal Python automation project for reading NetTime balance data from a web dashboard, estimating the end-of-day departure time, and sending a concise Telegram update. It also exports a JSON file that can be displayed in a Windows Rainmeter widget.
 
-This project is a **personal technical experiment** that combines:
-
-* Web automation / scraping with Python
-* Background task scheduling
-* Data extraction & transformation
-* Push notifications via a Telegram bot
-
-The goal is to explore how to:
-
-* Automate interaction with a web interface
-* Extract structured information
-* Process it locally
-* Deliver concise notifications to a mobile device
-
-This project is **not intended for production use** and is meant purely as a **learning and experimentation exercise**.
-
----
+This repository is built for learning and personal workflow automation. Use it only with systems you are authorized to access and only in ways that follow the target system's terms.
 
 ## Features
 
-* Headless browser automation using **Playwright (Chromium)**
-* Secure handling of credentials via environment variables
-* Extraction of selected values from a dashboard-style interface
-* Local transformation of data (daily / monthly balances)
-* Telegram bot notifications
-* Scheduled execution using `cron`
-* Runs silently in the background
+- Headless browser automation with Playwright and Chromium.
+- Environment-based configuration for credentials and Telegram settings.
+- Extraction of daily and monthly NetTime balance values.
+- Estimated departure time based on normal or Ramadan work targets.
+- Telegram notifications for mobile updates.
+- JSON export for a desktop widget.
+- Optional cron scheduling for regular background refreshes.
 
----
+## Tech Stack
 
-## Example Notification
-
-```
-⏱ Time Summary
-
-📅 Daily balance : -4:21
-📆 Monthly balance : 9:42
-
-🏠 Estimated end time : 18:53
-```
-
----
+| Area | Tools |
+| --- | --- |
+| Language | Python |
+| Browser automation | Playwright |
+| Configuration | python-dotenv |
+| Notifications | Telegram Bot API, requests |
+| Scheduling | cron on Linux/WSL |
+| Desktop display | Rainmeter on Windows |
 
 ## Project Structure
 
-```
+```text
 nettimer/
-├── core/               # Browser + time calculation logic
-├── scraper/            # Login & data extraction
-├── notifier/           # Telegram notification sender
-├── exporter/           # (optional) data export logic
-├── output/             # Generated output files
-├── main.py             # Entry point
-├── requirements.txt    # Python dependencies
-├── .env.example        # Environment variables template
-├── run_nettime_exemple.sh
-└── README.md
+├── config/                # Runtime settings
+├── core/                  # Browser setup, work modes, time calculation
+├── exporter/              # JSON widget export
+├── notifier/              # Telegram sender
+├── output/                # Generated runtime files
+├── scraper/               # Login and dashboard extraction
+├── windows_widget/        # Rainmeter skin assets
+├── main.py                # CLI entry point
+├── requirements.txt       # Python dependencies
+├── .env.example           # Environment variable template
+├── run_nettime_example.sh # Example scheduled runner
+├── setup_cron_5min.sh     # Installs the 5-minute cron job
+└── remove_cron_5min.sh    # Removes the 5-minute cron job
 ```
 
----
+## Setup
 
-## Installation
-
-### 1. Clone the repository
+Clone the repository and enter the project directory:
 
 ```bash
-git clone <repo-url>
-cd nettimer
+git clone https://github.com/YahyaSaadaoui/Nettimer.git
+cd Nettimer
 ```
 
-### 2. Create a virtual environment
+Create and activate a virtual environment:
 
 ```bash
 python3 -m venv .venv
 source .venv/bin/activate
 ```
 
-### 3. Install dependencies
+Install dependencies and the Playwright browser runtime:
 
 ```bash
 pip install -r requirements.txt
 playwright install chromium
 ```
 
----
-
-## Configuration
-
-### Environment variables
-
-Create a `.env` file based on the example:
+Create your local environment file:
 
 ```bash
 cp .env.example .env
 ```
 
-Edit `.env` and fill in the required values:
+Fill in the values in `.env`:
 
 ```env
-NETTIME_USERNAME=
-NETTIME_PASSWORD=
-NETTIME_URL=
-
-TELEGRAM_BOT_TOKEN=
-TELEGRAM_CHAT_ID=
+NETTIME_USERNAME=your_username
+NETTIME_PASSWORD=your_password
+NETTIME_URL=https://example.internal/nettime
+TELEGRAM_BOT_TOKEN=123456:telegram-bot-token
+TELEGRAM_CHAT_ID=123456789
 ```
 
-> Credentials are stored locally and never committed to the repository.
+Never commit `.env`, screenshots, logs, or generated output containing private data.
 
----
+## Running
 
-## Running the project
-
-### Manual run
+Run the scraper and send a Telegram update:
 
 ```bash
 python main.py
 ```
 
-If everything is configured correctly, a Telegram notification will be sent.
-
-The run also writes widget data into:
-
-```text
-output/nettime_widget.json
-```
-
-### Work mode (normal / ramadan)
-
-The project supports two persistent work modes:
-
-* `normal` = target `8:30`
-* `ramadan` = target `7:00`
-
-Switch mode (and persist choice):
-
-```bash
-python main.py --mode ramadan
-python main.py --mode normal
-```
-
-Check current mode without scraping:
+Show the current persisted work mode without scraping:
 
 ```bash
 python main.py --status
 ```
 
-Set mode without scraping:
+Switch the work mode:
 
 ```bash
-python main.py --mode ramadan --status
-python main.py --mode normal --status
+python main.py --mode normal
+python main.py --mode ramadan
 ```
 
-Once `ramadan` is activated, it stays active for next runs until you cancel it with `--mode normal`.
+The mode is persisted in `output/work_mode_state.json`. The normal target is `8:30`; the Ramadan target is `7:00`.
 
----
-
-## Windows desktop widget (Rainmeter)
-
-You can pin NetTime values on your Windows desktop with Rainmeter.
-
-### 1. Install Rainmeter (Windows)
-
-Download and install Rainmeter from:
+Each successful run writes widget data to:
 
 ```text
-https://www.rainmeter.net/
+output/nettime_widget.json
 ```
 
-### 2. Copy the skin files
+## Scheduling
 
-From this repository, copy:
-
-```text
-windows_widget/rainmeter/NetTime
-```
-
-to:
-
-```text
-%USERPROFILE%\Documents\Rainmeter\Skins\NetTime
-```
-
-Or run the installer script from Windows PowerShell:
-
-```powershell
-powershell -ExecutionPolicy Bypass -File "\\wsl.localhost\Ubuntu-24.04\home\username\nettimer\windows_widget\install_rainmeter_skin.ps1"
-```
-
-### 3. Check the data path
-
-Open `NetTime.ini` and verify this variable:
-
-```ini
-DataPath=\\wsl.localhost\Ubuntu-24.04\home\username\nettimer\output\nettime_widget.json
-```
-
-If your Linux username, distro name, or project path differs, update it.
-
-### 4. Load the widget
-
-In Rainmeter:
-
-1. Open **Manage**.
-2. Select `NetTime`.
-3. Load `NetTime.ini`.
-4. Right-click the widget and enable **Draggable** to place it.
-5. Disable **Draggable** and enable **Click through** if you want it to stay fixed.
-
----
-
-## Background execution (Linux)
-
-The project can be scheduled using `cron` to run at specific times.
-
-Example (Monday–Friday at 11:00, 15:00, 17:00):
-
-```cron
-0 11,15,17 * * 1-5 /path/to/run_nettime.sh
-```
-
-An example launcher script (`run_nettime_exemple.sh`) is provided.
-
-### Fetch every 5 minutes
-
-Install a 5-minute cron job with:
+The repository includes a cron installer for Linux or WSL. It schedules Nettimer to refresh every 5 minutes:
 
 ```bash
-./setup_cron_5min.sh
+bash setup_cron_5min.sh
 ```
 
-Remove it with:
+Remove the scheduled job with:
 
 ```bash
-./remove_cron_5min.sh
+bash remove_cron_5min.sh
 ```
 
-The Rainmeter widget is configured to re-read JSON data every 30 seconds, so updates appear quickly after each fetch.
+By default, the cron job runs `run_nettime_example.sh`. If you need custom behavior, create a local `run_nettime.sh` file in the repository root. That file is ignored by Git, and the installer will use it when present.
 
----
+## Windows Rainmeter Widget
 
-## Security & Scope
+The widget reads the generated JSON file and displays the latest NetTime values on the desktop.
 
-This project is intentionally limited in scope:
+1. Install Rainmeter from `https://www.rainmeter.net/`.
+2. Copy `windows_widget/rainmeter/NetTime` into `%USERPROFILE%\Documents\Rainmeter\Skins\NetTime`.
+3. Open `NetTime.ini` and update `DataPath` to the path of `output/nettime_widget.json` on your machine.
+4. Load `NetTime.ini` from Rainmeter's Manage window.
 
-* Runs **locally only**
-* Uses standard browser automation
-* Extracts **only data visible to the logged-in user**
-* Does not bypass authentication
-* Does not interact with private APIs
-* Does not upload scraped data to third-party services
+The Rainmeter skin refreshes from the JSON file, so it updates after the next scheduled Nettimer run.
 
-It is designed as a **personal learning project**, not a monitoring or surveillance tool.
+## Security Notes
 
----
+- The project runs locally and stores secrets only in your local `.env` file.
+- It uses normal browser automation against pages visible to the logged-in user.
+- It does not bypass authentication, call private APIs, or upload scraped data to an external service except for the Telegram message you configure.
+- Debug screenshots and HTML dumps can contain private data; keep `output/` local.
 
-## Why this project
+## Good First Improvements
 
-This project was built to practice and demonstrate:
+- Add unit tests for `core/time_calc.py` and `core/work_mode.py`.
+- Improve error handling around missing environment variables and Telegram failures.
+- Add a Docker or devcontainer setup for repeatable local runs.
+- Add sanitized screenshots of the Rainmeter widget and Telegram notification flow.
 
-* Python automation
-* Web scraping with modern tools
-* Clean project structuring
-* Background task scheduling
-* Notification systems
-* Secure handling of configuration and secrets
+## License
 
-It serves as a sandbox for experimenting with **automation patterns commonly used in internal tools**.
-
----
-
-## Disclaimer
-
-This repository is provided for **educational and experimental purposes only**.
-Any usage should comply with the terms of the target systems being accessed.
-
+This project is shared as a personal educational project. Check the repository license before reusing it in another project.
